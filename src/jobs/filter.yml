@@ -1,0 +1,36 @@
+description: |
+  Send continuation API with scanning a directory with configs, that all specify a `paths` field in a normal CircleCI
+  config syntax with glob matching for whether to run.
+
+executor:
+  name: default
+  tag: << parameters.tag >>
+
+resource_class: "small"
+
+parameters:
+  base-revision:
+    type: string
+    default: "main"
+    description: >
+      The revision to compare the current one against for the purpose
+      of determining changed files.
+  circleci-domain:
+    type: string
+    description: "The domain of the CircleCI installation - defaults to circleci.com."
+    default: "circleci.com"
+  project-config-path:
+    type: string
+    default: ".circleci/projects"
+  tag:
+    type: string
+    default: "3.8"
+    description: >
+      Pick a specific circleci/python image variant:
+      https://hub.docker.com/r/cimg/python/tags
+steps:
+  - checkout
+  - filter-to-continue:
+      base-revision: << parameters.base-revision >>
+      circleci-domain: << parameters.circleci-domain >>
+      project-config-path: << parameters.project-config-path >>

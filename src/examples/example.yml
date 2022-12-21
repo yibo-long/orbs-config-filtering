@@ -1,13 +1,15 @@
 description: >
-  Sample example description.
-# Provide a use-case based example for using this orb.
-# Everything in the `usage` section will be displayed in the orb registry.
-# Comments are not retained.
+  Send continuation API with scanning a directory with configs, that all specify a `paths` field in a normal CircleCI
+  config syntax with glob matching for whether to run.
 usage:
   version: 2.1
+  setup: true
   orbs:
-    <orb-name>: <namespace>/<orb-name>@1.2.3
+    config-filtering: yibolong/config-filtering@0.0.1
   workflows:
-    use-my-orb:
+    generate-config:
       jobs:
-        - <orb-name>/<job-name>
+        - config-filtering/filter:
+            base-revision: main
+            project-config-path: ".circleci/projects"
+
