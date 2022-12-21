@@ -16,7 +16,9 @@ jobs:
     steps:
       - checkout
       # Run your orb's commands to validate them.
-      - config-filtering/greet
+      - run:
+          name: "echo"
+          command: echo "Nothing to test here as it doesn't support continuation within continuation"
 workflows:
   test-deploy:
     jobs:

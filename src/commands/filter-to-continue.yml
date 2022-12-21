@@ -1,0 +1,34 @@
+description: >
+  Send continuation API with scanning a directory with configs, that all specify a `paths` field in a normal CircleCI
+  config syntax with glob matching for whether to run.
+
+  Be aware each section is merged together, so if there is duplicate naming, it will be overridden in the final config.
+  And `parameters` field is not sent.
+parameters:
+  base-revision:
+    type: string
+    default: "main"
+    description: >
+      The revision to compare the current one against for the purpose
+      of determining changed files.
+  project-config-path:
+    type: string
+    default: ".circleci/projects"
+    description: Directory to scan for project specific config.
+  circleci-domain:
+    type: string
+    default: "circleci.com"
+    description: "The domain of the CircleCI installation - defaults to circleci.com."
+steps:
+  - checkout
+  - run:
+      name: Install needed Python packages.
+      command: pip install requests pyyaml
+  - run:
+      name: Filter configs to run
+      environment:
+        BASE_REVISION: <<parameters.base-revision>>
+        CIRCLECI_DOMAIN: <<parameters.circleci-domain>>
+        PROJECT_CONFIG_PATH: <<parameters.project-config-path>>
+      shell: /usr/bin/env python3
+      command: <<include(scripts/create-config.py)>>
