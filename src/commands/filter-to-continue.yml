@@ -22,6 +22,7 @@ parameters:
 steps:
   - checkout
   - run:
+      name: Install needed Python packages.
       command: pip install requests pyyaml
   - run:
       name: Filter configs to run
