@@ -1,0 +1,20 @@
+---
+version: 2.1
+
+paths:
+  - '**'
+  - '*'
+
+jobs:
+  echo-hello:
+    docker:
+      - image: cimg/base:current
+    steps:
+      - run:
+          name: "echo"
+          command: echo "hello"
+
+workflows:
+  continue-workflow:
+    jobs:
+      - echo-hello
