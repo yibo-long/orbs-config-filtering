@@ -5,6 +5,8 @@ description: >
   config syntax with glob matching for whether to run.
 
 # This information will be displayed in the orb registry and is not mandatory.
+display:
+  source_url: "https://github.com/yibo-long/orbs-config-filtering"
 
 # If your orb requires other orbs, you can import them like this. Otherwise remove the "orbs" stanza.
 # orbs:
