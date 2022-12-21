@@ -12,4 +12,3 @@ usage:
         - config-filtering/filter:
             base-revision: main
             project-config-path: ".circleci/projects"
-

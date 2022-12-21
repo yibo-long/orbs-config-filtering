@@ -1,7 +1,7 @@
 description: >
   Send continuation API with scanning a directory with configs, that all specify a `paths` field in a normal CircleCI
   config syntax with glob matching for whether to run.
-  
+
   Be aware each section is merged together, so if there is duplicate naming, it will be overridden in the final config.
   And `parameters` field is not sent.
 parameters:
