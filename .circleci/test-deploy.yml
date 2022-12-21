@@ -1,4 +1,5 @@
 version: 2.1
+setup: true
 orbs:
   config-filtering: yibolong/config-filtering@dev:<<pipeline.git.revision>>
   orb-tools: circleci/orb-tools@11.5
