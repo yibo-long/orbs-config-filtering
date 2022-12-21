@@ -152,7 +152,10 @@ def create_config(head, base):
     for config_path in config_paths:
         if check_config_match(config_path, changes):
             merge_config(final_config, config_path)
-    send_continuation(final_config)
+    if final_config['workflows']:
+        send_continuation(final_config)
+    else:
+        print('no workflow to be scheduled, skip creating continuation workflow')
 
 
 create_config(
