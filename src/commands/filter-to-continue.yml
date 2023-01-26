@@ -19,6 +19,11 @@ parameters:
     type: string
     default: "circleci.com"
     description: "The domain of the CircleCI installation - defaults to circleci.com."
+  trigger-path:
+    type: string
+    default: ""
+    description: >
+      Optional additional path to trigger as a parameter, so it can be directly triggered from CircleCI console.
 steps:
   - checkout
   - run:
@@ -30,5 +35,6 @@ steps:
         BASE_REVISION: <<parameters.base-revision>>
         CIRCLECI_DOMAIN: <<parameters.circleci-domain>>
         PROJECT_CONFIG_PATH: <<parameters.project-config-path>>
+        ADDITIONAL_TRIGGER_PATH: <<parameters.trigger-path>>
       shell: /usr/bin/env python3
       command: <<include(scripts/create-config.py)>>
