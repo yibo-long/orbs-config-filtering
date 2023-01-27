@@ -139,6 +139,9 @@ def create_config(head, base):
 
     print('Comparing {}...{}'.format(base, head))
     changes = changed_files(base, head)
+    additional_trigger_path = os.environ.get('ADDITIONAL_TRIGGER_PATH', '')
+    if additional_trigger_path:
+        changes.append(additional_trigger_path)
     config_paths = scan_configs()
     final_config = {
         'version': 2.1,

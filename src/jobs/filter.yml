@@ -28,9 +28,15 @@ parameters:
     description: >
       Pick a specific circleci/python image variant:
       https://hub.docker.com/r/cimg/python/tags
+  trigger-path:
+    type: string
+    default: ""
+    description: >
+      Optional additional path to trigger as a parameter, so it can be directly triggered from CircleCI console.
 steps:
   - checkout
   - filter-to-continue:
       base-revision: << parameters.base-revision >>
       circleci-domain: << parameters.circleci-domain >>
       project-config-path: << parameters.project-config-path >>
+      trigger-path: << parameters.trigger-path >>
