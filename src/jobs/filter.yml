@@ -34,7 +34,6 @@ parameters:
     description: >
       Optional additional path to trigger as a parameter, so it can be directly triggered from CircleCI console.
 steps:
-  - checkout
   - filter-to-continue:
       base-revision: << parameters.base-revision >>
       circleci-domain: << parameters.circleci-domain >>
