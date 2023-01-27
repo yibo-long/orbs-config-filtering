@@ -152,7 +152,12 @@ def create_config(head, base):
         'jobs': {},
         'workflows': {
         },
-        'parameters': {}
+        'parameters': {
+            'trigger-path': {
+                'type': 'string',
+                'default': ''
+            }
+        }
     }
     for config_path in config_paths:
         if check_config_match(config_path, changes):
