@@ -82,32 +82,16 @@ def merge_config(final_config, config_path):
             final_config['workflows'].update(config_yaml['workflows'])
 
 
-def send_continuation_file(config_path):
-    print(f'start workflow in {config_path}')
-    with open(config_path, 'r') as config_file:
-        content = config_file.read()
-        res = requests.post(
-            f'https://{CIRCLECI_DOMAIN}/api/v2/pipeline/continue',
-            json={
-                'continuation-key': CIRCLE_CONTINUATION_KEY,
-                'configuration': content
-            },
-            headers={
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            }
-        )
-        print(res)
-        print(res.text)
-
-
-def send_continuation(config):
+def send_continuation(config, changes):
     print(f'start workflow as {config}')
     res = requests.post(
         f'https://{CIRCLECI_DOMAIN}/api/v2/pipeline/continue',
         json={
             'continuation-key': CIRCLE_CONTINUATION_KEY,
-            'configuration': json.dumps(config)
+            'configuration': json.dumps(config),
+            'parameters': {
+                'change-paths': ','.join(changes)
+            }
         },
         headers={
             'Content-Type': 'application/json',
@@ -156,6 +140,10 @@ def create_config(head, base):
             'trigger-path': {
                 'type': 'string',
                 'default': ''
+            },
+            'change-paths': {
+                'type': 'string',
+                'default': ''
             }
         }
     }
@@ -163,7 +151,7 @@ def create_config(head, base):
         if check_config_match(config_path, changes):
             merge_config(final_config, config_path)
     if final_config['workflows']:
-        send_continuation(final_config)
+        send_continuation(final_config, changes)
     else:
         print('no workflow to be scheduled, skip creating continuation workflow')
 
