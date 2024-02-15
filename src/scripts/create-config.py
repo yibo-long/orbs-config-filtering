@@ -8,9 +8,10 @@ import subprocess
 import yaml
 
 # Required.
-CIRCLE_CONTINUATION_KEY = os.environ["CIRCLE_CONTINUATION_KEY"]
-CIRCLECI_DOMAIN = os.environ["CIRCLECI_DOMAIN"]
-PROJECT_CONFIG_PATH = os.environ["PROJECT_CONFIG_PATH"]
+CIRCLE_CONTINUATION_KEY = os.environ['CIRCLE_CONTINUATION_KEY']
+CIRCLECI_DOMAIN = os.environ['CIRCLECI_DOMAIN']
+PROJECT_CONFIG_PATH = os.environ['PROJECT_CONFIG_PATH']
+HEADER_APPLICATION_JSON = 'application/json'
 
 
 def checkout(revision):
@@ -94,8 +95,8 @@ def send_continuation(config, changes):
             }
         },
         headers={
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
+            'Content-Type': HEADER_APPLICATION_JSON,
+            'Accept': HEADER_APPLICATION_JSON,
         }
     )
     print(res)
@@ -121,12 +122,13 @@ def create_config(head, base):
             # to that is just the first commit as patch.
             base = '4b825dc642cb6eb9a060e54bf8d69288fbee4904'
 
-    print('Comparing {}...{}'.format(base, head))
-    changes = changed_files(base, head)
     additional_trigger_path = os.environ.get('ADDITIONAL_TRIGGER_PATH', '')
     if additional_trigger_path:
-        print('Adding additional path {}'.format(additional_trigger_path))
-        changes.append(additional_trigger_path)
+        print('Using additional path {} only'.format(additional_trigger_path))
+        changes = [additional_trigger_path]
+    else:
+        print('Comparing {}...{}'.format(base, head))
+        changes = changed_files(base, head)
     print(changes)
     config_paths = scan_configs()
     final_config = {
