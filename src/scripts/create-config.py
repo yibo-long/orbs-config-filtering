@@ -3,6 +3,7 @@
 import fnmatch
 import json
 import os
+from pprint import pprint
 import requests
 import subprocess
 import yaml
@@ -60,27 +61,55 @@ def scan_configs():
     return configs
 
 
-def check_config_match(config_path, changes):
-    with open(config_path, 'r') as config_file:
-        config_yaml = yaml.load(config_file, Loader=yaml.SafeLoader)
-        for pattern in config_yaml['paths']:
-            if fnmatch.filter(changes, pattern):
-                return True
-        return False
+def load_configs(config_paths):
+    configs = {}
+    for config_path in config_paths:
+        with open(config_path, 'r') as config_file:
+            configs[config_path] = yaml.load(config_file, Loader=yaml.SafeLoader)
+    return configs
 
 
-def merge_config(final_config, config_path):
+# Allows for a single transitive dependency to be included in the config
+def extend_configs_with_sub_projects(configs):
+    new_configs = {}
+    for config_path, config_yaml in configs.items():
+        # Make a deep copy of the path config to allow for modification
+        new_config_yaml = config_yaml.copy()
+        new_config_yaml['paths'] = config_yaml['paths'].copy()
+        for sub_project_path in config_yaml.get('projects', []):
+            if sub_project_path not in configs:
+                print('WARNING: dependency project {} not found for {}, skipping'.format(sub_project_path, config_path))
+                continue
+            print('Extending config {} with sub project {}'.format(config_path, sub_project_path))
+            sub_config = configs.get(sub_project_path, {})
+            sub_paths = sub_config.get('paths', [])
+            new_config_yaml['paths'].extend(sub_paths)
+            if 'projects' in sub_config:
+                print(
+                    'WARNING: dependency project {} has its own subprojects: {}, these are not being processed into {}'
+                    .format(sub_project_path, sub_config['projects'], config_path)
+                )
+        new_configs[config_path] = new_config_yaml
+
+    return new_configs
+
+def check_config_match(config_yaml, changes):
+    for pattern in config_yaml['paths']:
+        if fnmatch.filter(changes, pattern):
+            return True
+    return False
+
+
+def merge_config(final_config, config_path, config_yaml):
     print(f'merge {config_path} into final config')
-    with open(config_path, 'r') as config_file:
-        config_yaml = yaml.load(config_file, Loader=yaml.SafeLoader)
-        if 'orbs' in config_yaml:
-            final_config['orbs'].update(config_yaml['orbs'])
-        if 'commands' in config_yaml:
-            final_config['commands'].update(config_yaml['commands'])
-        if 'jobs' in config_yaml:
-            final_config['jobs'].update(config_yaml['jobs'])
-        if 'workflows' in config_yaml:
-            final_config['workflows'].update(config_yaml['workflows'])
+    if 'orbs' in config_yaml:
+        final_config['orbs'].update(config_yaml['orbs'])
+    if 'commands' in config_yaml:
+        final_config['commands'].update(config_yaml['commands'])
+    if 'jobs' in config_yaml:
+        final_config['jobs'].update(config_yaml['jobs'])
+    if 'workflows' in config_yaml:
+        final_config['workflows'].update(config_yaml['workflows'])
 
 
 def send_continuation(config, changes):
@@ -129,8 +158,10 @@ def create_config(head, base):
     else:
         print('Comparing {}...{}'.format(base, head))
         changes = changed_files(base, head)
-    print(changes)
+    pprint(changes)
     config_paths = scan_configs()
+    configs = load_configs(config_paths)
+    extended_configs = extend_configs_with_sub_projects(configs)
     final_config = {
         'version': 2.1,
         'orbs': {},
@@ -149,9 +180,9 @@ def create_config(head, base):
             }
         }
     }
-    for config_path in config_paths:
-        if check_config_match(config_path, changes):
-            merge_config(final_config, config_path)
+    for config_path, config_yaml in extended_configs.items():
+        if check_config_match(config_yaml, changes):
+            merge_config(final_config, config_path, config_yaml)
     if final_config['workflows']:
         send_continuation(final_config, changes)
     else:
