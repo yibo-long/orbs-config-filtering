@@ -6,9 +6,13 @@ executor:
   name: default
   tag: << parameters.tag >>
 
-resource_class: "small"
+resource_class: << parameters.resource_class >>
 
 parameters:
+  resource_class:
+    type: string
+    description: "The resource class using to run the job."
+    default: "small"
   base-revision:
     type: string
     default: "main"
